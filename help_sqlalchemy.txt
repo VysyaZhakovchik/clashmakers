@@ -1,0 +1,14 @@
+@app.route('/help')
+def help():
+    # user = Users(username = 'peterpodrez', password = 'Iamsnitchtoo', coins = 98)
+    # db.session.add(user)
+    # db.session.commit()
+    tim = User.query.filter_by(username='timsytsko').first()
+    print(tim.password)
+    daun = User.query.all()
+    print(daun[0].password)
+    delete = User.query.filter_by(username='peterpodrez').all()
+    for i in delete:
+        db.session.delete(i)
+    db.session.commit()
+    return "ok"
