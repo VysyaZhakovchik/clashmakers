@@ -1,8 +1,8 @@
 @app.route('/help')
 def help():
-    # user = Users(username = 'peterpodrez', password = 'Iamsnitchtoo', coins = 98)
-    # db.session.add(user)
-    # db.session.commit()
+    user = Users(username = 'peterpodrez', password = 'Iamsnitchtoo', coins = 98)
+    db.session.add(user)
+    db.session.commit()
     tim = User.query.filter_by(username='timsytsko').first()
     print(tim.password)
     daun = User.query.all()

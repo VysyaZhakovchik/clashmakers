@@ -47,5 +47,37 @@ class Bets(db.Model):
 def main():
     return render_template("main.html")
 
+@app.route('/login', methods=["POST", "GET"])
+def login():
+    if request.method == "POST":
+        form = request.form
+        username = form["username"]
+        password = form["password"]
+        check = Users.query.filter_by(username=username, password=password).first()
+        if (check is None):
+            print("no")
+        else:
+            print("yes")
+    return render_template("login.html")
+
+@app.route('/sign_up', methods=["POST", "GET"])
+def sign_up():
+    if request.method == "POST":
+        form = request.form
+        username = form["username"]
+        password = form["password"]
+        if (len(username) > 25 or len(password) > 25):
+            print("mistake, username and password must include less than 25 letters")
+        else:
+            check = Users.query.filter_by(username=username).first()
+            if (check is None):
+                user = Users(username = username, password = password, coins = 100)
+                db.session.add(user)
+                db.session.commit()
+                print("created")
+            else:
+                print("username has already been used")
+    return render_template("sign_up.html")
+
 if __name__ == "__main__":
     app.run(debug=True)
