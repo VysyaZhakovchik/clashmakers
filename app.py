@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, flash, jsonify
+from flask import Flask, render_template, request, redirect, flash, jsonify, make_response, abort
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 import random
@@ -45,29 +45,83 @@ class Bets(db.Model):
     def __repr__(self):
         return '<User %r>' % self.bet_id
 
+class Sessions(db.Model):
+    session_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    session_key = db.Column(db.String(15), nullable=False)
 
-@app.route('/')
+    def __repr__(self):
+        return '<Session %r>' % self.session_id
+
+
+@app.route('/', methods=["POST", "GET"])
 def main():
-    event = Events(first_opponent = "Ipswich", second_opponent = "Pochatok", tournoment = "Freak Championship", date = datetime.datetime.now(), first_score = None, second_score = None, )
-    db.session.add(event)
-    db.session.commit()
+    if request.method == "POST":
+        if check_cookies():
+            return jsonify(1)
+        else:
+            return jsonify(0)
     return render_template("main.html")
+def check_cookies():
+    if request.cookies.get('username') and request.cookies.get('session_key'):
+        username = request.cookies.get('username')
+        print(username)
+        user_id = Users.query.filter_by(username = username).first()
+        if user_id is None:
+            return False
+        user_id = user_id.user_id
+        session_key = Sessions.query.filter_by(user_id = user_id).first()
+        if session_key is None:
+            return False
+        session_key = session_key.session_key
+        print(session_key)
+        real_session_key = request.cookies.get('session_key')
+        print(real_session_key)
+        if (session_key == real_session_key):
+            return True
+        else:
+            return False
+
 
 @app.route('/login', methods=["POST", "GET"])
 def login():
+    if check_cookies():
+        abort(404)
     if request.method == "POST":
         form = request.form
         username = form["username"]
         password = form["password"]
         check = Users.query.filter_by(username = username, password = password).first()
-        if (check is None):
-            print("no")
-        else:
-            print("yes")
+        if check is not None:
+            user_id = Users.query.filter_by(username = username).first()
+            if user_id is not None:
+                user_id = user_id.user_id
+                delete = Sessions.query.filter_by(user_id = user_id).all()
+                for i in delete:
+                    db.session.delete(i)
+                db.session.commit()
+                session_key = generate_session_key()
+                session = Sessions(user_id = user_id, session_key = session_key)
+                db.session.add(session)
+                db.session.commit()
+                cookie = make_response(redirect("/"))
+                cookie.set_cookie('username', username)
+                cookie.set_cookie('session_key', session_key)
+                return cookie
     return render_template("login.html")
+
+def generate_session_key():
+        res = ''
+        chars = [chr(i) for i in range(33, 127)]
+        for _ in range(15):
+            res += chars[random.randint(0, len(chars) - 1)]
+        return res
+
 
 @app.route('/sign_up', methods=["POST", "GET"])
 def sign_up():
+    if check_cookies():
+        abort(404)
     if request.method == "POST":
         form = request.form
         username = form["username"]
@@ -80,10 +134,50 @@ def sign_up():
                 user = Users(username = username, password = password, coins = 100)
                 db.session.add(user)
                 db.session.commit()
-                print("created")
+                user_id = Users.query.filter_by(username = username).first().user_id
+                session_key = generate_session_key()
+                session = Sessions(user_id = user_id, session_key = session_key)
+                db.session.add(session)
+                db.session.commit()
+                cookie = make_response(redirect("/"))
+                cookie.set_cookie('username', username)
+                cookie.set_cookie('session_key', session_key)
+                return cookie
             else:
                 print("username has already been used")
     return render_template("sign_up.html")
 
+
+@app.route('/profile', methods=["POST", "GET"])
+def profile():
+    if not check_cookies():
+        abort(404)
+    if request.method == "POST":
+        if check_cookies():
+            return jsonify(1)
+        else:
+            return jsonify(0)
+    return render_template("profile.html")
+
+
+@app.route('/log_out_button', methods=["POST", "GET"])
+def log_out_button():
+    if not check_cookies():
+        abort(404)
+    username = request.cookies.get('username')
+    user_id = Users.query.filter_by(username = username).first()
+    if user_id is not None:
+        user_id = user_id.user_id
+        delete = Sessions.query.filter_by(user_id = user_id).all()
+        for i in delete:
+            db.session.delete(i)
+        db.session.commit()
+        cookie = make_response(redirect("/"))
+        cookie.set_cookie('username', 'delete', max_age=0)
+        cookie.set_cookie('session_key', 'delete', max_age=0)
+        return cookie
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host='192.168.1.52', port=1234)
+

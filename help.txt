@@ -1,0 +1,26 @@
+@app.route('/help')
+def help():
+    user = Users(username = 'peterpodrez', password = 'Iamsnitchtoo', coins = 98)
+    db.session.add(user)
+    db.session.commit()
+    tim = Users.query.filter_by(username='timsytsko').first()
+    print(tim.password)
+    daun = Users.query.all()
+    print(daun[0].password)
+    delete = User.query.filter_by(username='peterpodrez').all()
+    for i in delete:
+        db.session.delete(i)
+    db.session.commit()
+    return "ok"
+
+@app.route('/cookie/')
+def cookie():
+    if not request.cookies.get('username'):
+        cookie = make_response("Setting a cookie")
+        cookie.set_cookie('username', 'vasyazhukov', max_age=60*3)
+    else:
+        cookie = make_response("Value of cookie username is {}".format(request.cookies.get('username')))
+    return cookie
+event = Events(first_opponent = "Ipswich", second_opponent = "Pochatok", tournoment = "Freak Championship", date = datetime.datetime.now(), first_score = None, second_score = None, )
+db.session.add(event)
+db.session.commit()

@@ -1,0 +1,7 @@
+button {
+    font-size:60px;
+    color:pink;
+}
+button:hover {
+    color:bisque;
+}
