@@ -1,3 +1,33 @@
-body {
-    font-size: 100px;
+.bet {
+  border: 5px solid #E5E4E2;
+  width: 29%;
+  margin-left: 25px;
+  margin-top: 25px;
+  margin-bottom: 25px;
+  height: 255px;
+  border-radius: 10px;
+  background-color: #E5E4E2;
+  text-align: center;
+}
+
+.bet_button {
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 15px;
+  background-color: #00a3d9;
+}
+
+.not_started {
+  color: rgb(255, 101, 101);
+}
+
+.active {
+  color: rgb(0, 255, 50);
 }

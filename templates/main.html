@@ -1,11 +1,19 @@
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="../static/css/main.css">
-        <title>clashmakers</title>
-    </head>
-    <body>
-        clashmakers<br>
-        <img src="../static/src/lpshki.jpg" alt="lpshki" width="500">
-    </body>
-</html>
+{% extends 'base.html' %}
+
+{% block css %}
+<link rel="stylesheet" href="../static/css/main.css">
+{% endblock %}
+
+{% block title %}
+Main
+{% endblock %}
+
+{% block main %}
+<div class="bet">
+    <h2>Барселона -:- Реал Мадрид</h2>
+    <h3>28.03.2024 20:00</h3>
+    <h5>LaLiga</h5>
+    <button class="bet_button">Make a bet!</button>
+    <p class="not_started">Not Started</p>
+</div>
+{% endblock %}
