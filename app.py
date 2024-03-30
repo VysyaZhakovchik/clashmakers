@@ -13,6 +13,7 @@ db = SQLAlchemy(app)
 
 class Users(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
+    mail = db.Column(db.String(100), nullable=False)
     username = db.Column(db.String(25), nullable=False)
     password = db.Column(db.String(25), nullable=False)
     coins = db.Column(db.Integer, nullable=False)
@@ -54,18 +55,28 @@ class Sessions(db.Model):
         return '<Session %r>' % self.session_id
 
 
-@app.route('/', methods=["POST", "GET"])
+@app.route('/basejs', methods=["POST", "GET"])
+def basejs():
+    if check_cookies():
+        return jsonify(1)
+    else:
+        return jsonify(0)
+
+@app.route('/mainjs', methods=["POST", "GET"])
+def mainjs():
+    rec_data = []
+    for i in range(5):
+        event = ["Ipswich", "Pochatok", "freaki", "28.03.2024 20:00", 3, 3]
+        rec_data.append(event)
+    return jsonify(rec_data)
+
+@app.route('/')
 def main():
-    if request.method == "POST":
-        if check_cookies():
-            return jsonify(1)
-        else:
-            return jsonify(0)
     return render_template("main.html")
+
 def check_cookies():
     if request.cookies.get('username') and request.cookies.get('session_key'):
         username = request.cookies.get('username')
-        print(username)
         user_id = Users.query.filter_by(username = username).first()
         if user_id is None:
             return False
@@ -74,9 +85,7 @@ def check_cookies():
         if session_key is None:
             return False
         session_key = session_key.session_key
-        print(session_key)
         real_session_key = request.cookies.get('session_key')
-        print(real_session_key)
         if (session_key == real_session_key):
             return True
         else:
@@ -88,26 +97,29 @@ def login():
     if check_cookies():
         abort(404)
     if request.method == "POST":
-        form = request.form
-        username = form["username"]
-        password = form["password"]
-        check = Users.query.filter_by(username = username, password = password).first()
-        if check is not None:
-            user_id = Users.query.filter_by(username = username).first()
-            if user_id is not None:
-                user_id = user_id.user_id
-                delete = Sessions.query.filter_by(user_id = user_id).all()
-                for i in delete:
-                    db.session.delete(i)
-                db.session.commit()
-                session_key = generate_session_key()
-                session = Sessions(user_id = user_id, session_key = session_key)
-                db.session.add(session)
-                db.session.commit()
-                cookie = make_response(redirect("/"))
-                cookie.set_cookie('username', username)
-                cookie.set_cookie('session_key', session_key)
-                return cookie
+        try:
+            form = request.form
+            username = form["username"]
+            password = form["password"]
+            check = Users.query.filter_by(username = username, password = password).first()
+            if check is not None:
+                user_id = Users.query.filter_by(username = username).first()
+                if user_id is not None:
+                    user_id = user_id.user_id
+                    delete = Sessions.query.filter_by(user_id = user_id).all()
+                    for i in delete:
+                        db.session.delete(i)
+                    db.session.commit()
+                    session_key = generate_session_key()
+                    session = Sessions(user_id = user_id, session_key = session_key)
+                    db.session.add(session)
+                    db.session.commit()
+                    cookie = make_response(redirect("/"))
+                    cookie.set_cookie('username', username)
+                    cookie.set_cookie('session_key', session_key)
+                    return cookie
+        except:
+            return render_template("login.html")
     return render_template("login.html")
 
 def generate_session_key():
@@ -123,42 +135,50 @@ def sign_up():
     if check_cookies():
         abort(404)
     if request.method == "POST":
-        form = request.form
-        username = form["username"]
-        password = form["password"]
-        if (len(username) > 25 or len(password) > 25):
-            print("mistake, username and password must include less than 25 letters")
-        else:
-            check = Users.query.filter_by(username = username).first()
-            if (check is None):
-                user = Users(username = username, password = password, coins = 100)
-                db.session.add(user)
-                db.session.commit()
-                user_id = Users.query.filter_by(username = username).first().user_id
-                session_key = generate_session_key()
-                session = Sessions(user_id = user_id, session_key = session_key)
-                db.session.add(session)
-                db.session.commit()
-                cookie = make_response(redirect("/"))
-                cookie.set_cookie('username', username)
-                cookie.set_cookie('session_key', session_key)
-                return cookie
-            else:
+        try:
+            form = request.form
+            username = form["username"]
+            mail = form["mail"]
+            password = form["password"]
+            repeat_password = form["repeat-password"]
+            if (len(username) > 25 or len(password) > 25):
+                print("mistake, username and password must include less than 25 letters")
+                return render_template("sign_up.html")
+            check_username = Users.query.filter_by(username = username).first()
+            if check_username is not None:
                 print("username has already been used")
+                return render_template("sign_up.html")
+            check_mail = Users.query.filter_by(mail = mail).first()
+            if check_mail is not None:
+                print("mail has already been used")
+                return render_template("sign_up.html")
+            print(password)
+            print(repeat_password)
+            if password != repeat_password:
+                print("incorect repeat")
+                return render_template("sign_up.html")
+            user = Users(mail = mail, username = username, password = password, coins = 100)
+            db.session.add(user)
+            db.session.commit()
+            user_id = Users.query.filter_by(username = username).first().user_id
+            session_key = generate_session_key()
+            session = Sessions(user_id = user_id, session_key = session_key)
+            db.session.add(session)
+            db.session.commit()
+            cookie = make_response(redirect("/"))
+            cookie.set_cookie('username', username)
+            cookie.set_cookie('session_key', session_key)
+            return cookie
+        except:
+            return render_template("sign_up.html")
     return render_template("sign_up.html")
 
 
-@app.route('/profile', methods=["POST", "GET"])
+@app.route('/profile')
 def profile():
     if not check_cookies():
         abort(404)
-    if request.method == "POST":
-        if check_cookies():
-            return jsonify(1)
-        else:
-            return jsonify(0)
     return render_template("profile.html")
-
 
 @app.route('/log_out_button', methods=["POST", "GET"])
 def log_out_button():
@@ -176,7 +196,6 @@ def log_out_button():
         cookie.set_cookie('username', 'delete', max_age=0)
         cookie.set_cookie('session_key', 'delete', max_age=0)
         return cookie
-
 
 if __name__ == "__main__":
     app.run(debug=True, host='192.168.1.52', port=1234)

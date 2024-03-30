@@ -1,18 +1,25 @@
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="../static/css/sign_up.css">
-        <title>sign up</title>
-    </head>
-    <body>
-        create account<br>
-        <form method="post" action="/sign_up">
-            <label for="username">Username:</label>
-            <input name="username">
-            <label for="password">Password:</label>
-            <input name="password">
-            <button type="submit">create</button>
-        </form>
-        <img src="../static/src/stepa.jpg" alt="stepa" width="200">
-    </body>
-</html>
+{% extends 'base.html' %}
+
+{% block css %}
+<link rel="stylesheet" href="../static/css/sign_up.css">
+{% endblock %}
+
+{% block title %}
+Sign Up
+{% endblock %}
+
+{% block main %}
+<div class="sign_up">
+    <form method="post" action="/sign_up">
+        <label for="username"><b>Username</b></label>
+        <input type="text" placeholder="Enter Username" name="username" required>
+        <label for="mail"><b>mail</b></label>
+        <input type="text" placeholder="Enter Your E-mail" name="mail" required>
+        <label for="password"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="password" required>
+        <label for="repeat-password"><b>Repeat Password</b></label>
+        <input type="password" placeholder="Repeat Password" name="repeat-password" required>
+        <button type="submit">Create account</button>
+    </form>
+</div>
+{% endblock %}

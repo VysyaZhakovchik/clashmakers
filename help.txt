@@ -24,3 +24,9 @@ def cookie():
 event = Events(first_opponent = "Ipswich", second_opponent = "Pochatok", tournoment = "Freak Championship", date = datetime.datetime.now(), first_score = None, second_score = None, )
 db.session.add(event)
 db.session.commit()
+
+${results[0]}
+
+import datetime
+datetime = datetime.datetime.now()
+print(datetime)

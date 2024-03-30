@@ -1,5 +1,5 @@
 let xhr = new XMLHttpRequest();
-xhr.open("POST", window.location.pathname);
+xhr.open("POST", "/basejs");
 
 xhr.responseType = "json";
 xhr.setRequestHeader("Content-Type", "application/json");
