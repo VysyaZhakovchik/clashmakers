@@ -5,12 +5,28 @@
 {% endblock %}
 
 {% block title %}
-profile
+Profile
 {% endblock %}
 
 {% block main %}
-<img src="../static/src/profile.jpg" alt="" class="pic">
-<h2>username</h2>
-<h4>e-mail</h4>
-<a href="/log_out_button"><button type="submit">Log Out</button></a>
+<div id="profiledata"></div>
+
+<div id="logout">
+    <a href="/log_out_button"><button type="submit">Log Out</button></a>
+</div>
+
+<h4 class="mybets">My Bets:</h4>
+<div class="bet">
+    <h6><b>Ipswich Town -:- FC Pochatok</b></h6>
+    <h6>Tue, 31 Dec 2024 23:59:59 GMT</h6>
+    <h6>freak championship</h6>
+    <h6>Bet: <b>1:1</b> 300 ClashCoins</h6>
+</div>
+<div class="bet">
+    <h6><b>Ipswich Town -:- FC Pochatok</b></h6>
+    <h6>Tue, 31 Dec 2024 23:59:59 GMT</h6>
+    <h6>freak championship</h6>
+    <h6>Bet: <b>1:1</b> 300 ClashCoins</h6>
+</div>
+<script src="../static/js/profile.js"></script>
 {% endblock %}

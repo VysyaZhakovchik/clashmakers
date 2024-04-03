@@ -1,11 +1,11 @@
-let xhr = new XMLHttpRequest();
-xhr.open("POST", "/basejs");
+let xhrbase = new XMLHttpRequest();
+xhrbase.open("POST", "/basejs");
 
-xhr.responseType = "json";
-xhr.setRequestHeader("Content-Type", "application/json");
+xhrbase.responseType = "json";
+xhrbase.setRequestHeader("Content-Type", "application/json");
 
-xhr.onload = () => {
-    rec_data = xhr.response;
+xhrbase.onload = () => {
+    rec_data = xhrbase.response;
     console.log(rec_data);
     html = ``;
     if (rec_data) {
@@ -19,5 +19,5 @@ xhr.onload = () => {
     }
     document.getElementById("profile").innerHTML = html;
 }
-let data = JSON.stringify({});
-xhr.send(data);
+let database = JSON.stringify({});
+xhrbase.send(database);

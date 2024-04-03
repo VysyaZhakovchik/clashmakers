@@ -11,7 +11,7 @@ xhr.onload = () => {
     if (rec_data.length > 0) {
         for (let i = 0; i < rec_data.length; i++) {
             html += `
-            <div class="bet">
+            <div class="event">
                 <h2>${rec_data[i][0]} ${rec_data[i][4]}:${rec_data[i][5]} ${rec_data[i][1]}</h2>
                 <h3>${rec_data[i][3]}</h3>
                 <h5>${rec_data[i][2]}</h5>
@@ -20,7 +20,7 @@ xhr.onload = () => {
             </div>`;
         }
     }
-    document.getElementById("bets").innerHTML = html;
+    document.getElementById("events").innerHTML = html;
 }
 let data = JSON.stringify({});
 xhr.send(data);

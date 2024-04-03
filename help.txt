@@ -30,3 +30,12 @@ ${results[0]}
 import datetime
 datetime = datetime.datetime.now()
 print(datetime)
+.strftime("%a, %d %b %Y %H:%M %Z")
+
+@app.route('/add')
+def add():
+    date = datetime.now(timezone(timedelta(hours=3)))
+    event = Events(first_opponent = 'lp', second_opponent = 'ld', tournoment = 'lpdski', date = date, first_score = 0, second_score = 10)
+    db.session.add(event)
+    db.session.commit()
+    return render_template("main.html")

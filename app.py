@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, flash, jsonify, make_response, abort
 from flask_sqlalchemy import SQLAlchemy
-import datetime
+from datetime import datetime, timezone, timedelta
 import random
 
 app = Flask(__name__)
@@ -57,6 +57,8 @@ class Sessions(db.Model):
 
 @app.route('/basejs', methods=["POST", "GET"])
 def basejs():
+    if (request.method == "GET"):
+        abort(404)
     if check_cookies():
         return jsonify(1)
     else:
@@ -64,10 +66,28 @@ def basejs():
 
 @app.route('/mainjs', methods=["POST", "GET"])
 def mainjs():
+    if (request.method == "GET"):
+        abort(404)
     rec_data = []
-    for i in range(5):
-        event = ["Ipswich", "Pochatok", "freaki", "28.03.2024 20:00", 3, 3]
-        rec_data.append(event)
+    events = Events.query.all()
+    for event in events:
+        if event.first_score != None:
+            rec_event = [event.first_opponent, event.second_opponent, event.tournoment, event.date.strftime("%a, %d %b %Y %H:%M") + " MSK", event.first_score, event.second_score]
+        else:
+            rec_event = [event.first_opponent, event.second_opponent, event.tournoment, event.date.strftime("%a, %d %b %Y %H:%M") + " MSK", "-", "-"]
+        rec_data.append(rec_event)
+    return jsonify(rec_data)
+
+@app.route('/profilejs', methods=["POST", "GET"])
+def profilejs():
+    if (request.method == "GET"):
+        abort(404)
+    rec_data = []
+    username = request.cookies.get('username')
+    email = Users.query.filter_by(username = username).first().mail
+    coins = Users.query.filter_by(username = username).first().coins
+    rec_data.append([username, email, coins])
+    print(rec_data)
     return jsonify(rec_data)
 
 @app.route('/')
@@ -185,17 +205,15 @@ def log_out_button():
     if not check_cookies():
         abort(404)
     username = request.cookies.get('username')
-    user_id = Users.query.filter_by(username = username).first()
-    if user_id is not None:
-        user_id = user_id.user_id
-        delete = Sessions.query.filter_by(user_id = user_id).all()
-        for i in delete:
-            db.session.delete(i)
-        db.session.commit()
-        cookie = make_response(redirect("/"))
-        cookie.set_cookie('username', 'delete', max_age=0)
-        cookie.set_cookie('session_key', 'delete', max_age=0)
-        return cookie
+    user_id = Users.query.filter_by(username = username).first().user_id
+    delete = Sessions.query.filter_by(user_id = user_id).all()
+    for i in delete:
+        db.session.delete(i)
+    db.session.commit()
+    cookie = make_response(redirect("/"))
+    cookie.set_cookie('username', 'delete', max_age=0)
+    cookie.set_cookie('session_key', 'delete', max_age=0)
+    return cookie
 
 if __name__ == "__main__":
     app.run(debug=True, host='192.168.1.52', port=1234)
