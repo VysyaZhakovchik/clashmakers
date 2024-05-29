@@ -39,3 +39,6 @@ def add():
     db.session.add(event)
     db.session.commit()
     return render_template("main.html")
+
+datetime.datetime.now() + datetime.timedelta(hours=3)
+datetime.now(timezone(timedelta(hours=3)))

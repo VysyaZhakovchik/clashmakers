@@ -71,10 +71,20 @@ def mainjs():
     rec_data = []
     events = Events.query.all()
     for event in events:
+        rec_event = [event.first_opponent, event.second_opponent, event.tournoment, event.date.strftime("%a, %d %b %Y %H:%M") + " MSK"]
         if event.first_score != None:
-            rec_event = [event.first_opponent, event.second_opponent, event.tournoment, event.date.strftime("%a, %d %b %Y %H:%M") + " MSK", event.first_score, event.second_score]
+            rec_event.append(event.first_score)
+            rec_event.append(event.second_score)
         else:
-            rec_event = [event.first_opponent, event.second_opponent, event.tournoment, event.date.strftime("%a, %d %b %Y %H:%M") + " MSK", "-", "-"]
+            rec_event.append("-")
+            rec_event.append("-")
+        now_date = datetime.now(timezone(timedelta(hours=3)))
+        now_date = datetime.strptime(now_date.strftime("%Y-%m-%d %H:%M:%S"), "%Y-%m-%d %H:%M:%S")
+        print(event.date - now_date)
+        delta = event.date - now_date
+        print(delta.seconds)
+        rec_event.append(event.event_id)
+        print(rec_event)
         rec_data.append(rec_event)
     return jsonify(rec_data)
 
@@ -89,6 +99,28 @@ def profilejs():
     rec_data.append([username, email, coins])
     print(rec_data)
     return jsonify(rec_data)
+
+@app.route('/eventjs', methods=["POST", "GET"])
+def eventjs():
+    if (request.method == "GET"):
+        abort(404)
+    rec_data = gl_event_id
+    return jsonify(rec_data)
+
+@app.route('/log_out_button', methods=["POST", "GET"])
+def log_out_button():
+    if not check_cookies():
+        abort(404)
+    username = request.cookies.get('username')
+    user_id = Users.query.filter_by(username = username).first().user_id
+    delete = Sessions.query.filter_by(user_id = user_id).all()
+    for i in delete:
+        db.session.delete(i)
+    db.session.commit()
+    cookie = make_response(redirect("/"))
+    cookie.set_cookie('username', 'delete', max_age=0)
+    cookie.set_cookie('session_key', 'delete', max_age=0)
+    return cookie
 
 @app.route('/')
 def main():
@@ -180,7 +212,7 @@ def sign_up():
             user = Users(mail = mail, username = username, password = password, coins = 100)
             db.session.add(user)
             db.session.commit()
-            user_id = Users.query.filter_by(username = username).first().user_id
+            user_id = Users.query. filter_by(username = username).first().user_id
             session_key = generate_session_key()
             session = Sessions(user_id = user_id, session_key = session_key)
             db.session.add(session)
@@ -200,21 +232,14 @@ def profile():
         abort(404)
     return render_template("profile.html")
 
-@app.route('/log_out_button', methods=["POST", "GET"])
-def log_out_button():
+@app.route('/event/event_id=<int:event_id>')
+def event(event_id):
     if not check_cookies():
-        abort(404)
-    username = request.cookies.get('username')
-    user_id = Users.query.filter_by(username = username).first().user_id
-    delete = Sessions.query.filter_by(user_id = user_id).all()
-    for i in delete:
-        db.session.delete(i)
-    db.session.commit()
-    cookie = make_response(redirect("/"))
-    cookie.set_cookie('username', 'delete', max_age=0)
-    cookie.set_cookie('session_key', 'delete', max_age=0)
-    return cookie
+        return redirect("/")
+    print(event_id)
+    return render_template("event.html")
+
 
 if __name__ == "__main__":
-    app.run(debug=True, host='192.168.1.52', port=1234)
+    app.run(debug=True, host='172.28.43.77', port=1234)
 

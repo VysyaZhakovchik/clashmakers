@@ -25,10 +25,14 @@
   background-color: #00a3d9;
 }
 
+.ended {
+  color: rgb(100, 255, 255);
+}
+
 .not_started {
   color: rgb(255, 101, 101);
 }
 
-.active {
-  color: rgb(0, 255, 50);
+.now {
+  color: rgb(255, 255, 0);
 }
